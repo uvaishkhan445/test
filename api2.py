@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from flask_mysqldb import MySQL
 from flask_cors import CORS
 
@@ -16,7 +16,7 @@ mysql = MySQL(app)
 
 @app.route("/")
 def index():
-    return "Welcome to the Flask MySQL CRUD API"
+    return render_template("index.html")
 
 
 # Create a new user
