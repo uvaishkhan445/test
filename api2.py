@@ -1,8 +1,18 @@
-from flask import Flask, request, jsonify, render_template, redirect, url_for, Response
+from flask import (
+    Flask,
+    request,
+    jsonify,
+    render_template,
+    redirect,
+    url_for,
+    Response,
+    make_response,
+)
 from flask_mysqldb import MySQL
 from flask_cors import CORS
 from flask_mail import Mail, Message
 import pandas as pd
+from fpdf import FPDF
 
 # from weasyprint import HTML
 
@@ -179,62 +189,46 @@ def download_csv():
 
 
 # download PDF file
+
+
+class PDF(FPDF):
+    def header(self):
+        self.set_font("Arial", "B", 12)
+        self.cell(0, 10, "Sample PDF Document", 0, 1, "C")
+
+    def footer(self):
+        self.set_y(-15)
+        self.set_font("Arial", "I", 8)
+        self.cell(0, 10, f"Page {self.page_no()}", 0, 0, "C")
+
+    def chapter_title(self, title):
+        self.set_font("Arial", "B", 12)
+        self.cell(0, 10, title, 0, 1, "L")
+        self.ln(10)
+
+    def chapter_body(self, body):
+        self.set_font("Arial", "", 12)
+        self.multi_cell(0, 10, body)
+        self.ln()
+
+
 @app.route("/download_pdf", methods=["GET"])
 def download_pdf():
-    # Sample data
-    data = [
-        {"name": "Alice", "age": 24, "city": "New York"},
-        {"name": "Bob", "age": 27, "city": "San Francisco"},
-        {"name": "Charlie", "age": 22, "city": "Los Angeles"},
-    ]
-
-    # Render HTML template with data
-    html_content = render_template_string(
-        """
-    <!doctype html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>PDF Report</title>
-        <style>
-            body { font-family: Arial, sans-serif; }
-            h1 { color: #333; }
-            table { width: 100%; border-collapse: collapse; }
-            th, td { padding: 8px 12px; border: 1px solid #ccc; }
-            th { background-color: #f4f4f4; }
-        </style>
-    </head>
-    <body>
-        <h1>Sample PDF Report</h1>
-        <table>
-            <tr>
-                <th>Name</th>
-                <th>Age</th>
-                <th>City</th>
-            </tr>
-            {% for row in data %}
-            <tr>
-                <td>{{ row.name }}</td>
-                <td>{{ row.age }}</td>
-                <td>{{ row.city }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </body>
-    </html>
-    """,
-        data=data,
+    pdf = PDF()
+    pdf.add_page()
+    pdf.chapter_title("Chapter 1: Introduction")
+    pdf.chapter_body(
+        "This is a simple chapter body to demonstrate how to use FPDF in Flask."
+    )
+    pdf.chapter_title("Chapter 2: More Content")
+    pdf.chapter_body(
+        "Here is some more content for the second chapter of our PDF document."
     )
 
-    # Convert HTML content to PDF
-    pdf = HTML(string=html_content).write_pdf()
-
-    # Create a response object
-    response = make_response(pdf)
+    response = make_response(pdf.output(dest="S").encode("latin1"))
     response.headers["Content-Type"] = "application/pdf"
-    response.headers["Content-Disposition"] = "attachment; filename=report.pdf"
-
+    # response.headers["Content-Disposition"] = "inline; filename=output.pdf"
+    response.headers["Content-Disposition"] = "attachment; filename=output.pdf"
     return response
 
 
