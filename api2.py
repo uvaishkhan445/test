@@ -40,7 +40,12 @@ mail = Mail(app)
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    data = {
+        "title": "Welcome to My Python Website",
+        "description": "This is a sample Contact Us Record.",
+        "items": ["Item 1", "Item 2", "Item 3"],
+    }
+    return render_template("index.html", **data)
 
 
 # Create a new user
