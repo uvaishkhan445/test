@@ -1,4 +1,5 @@
 import connect
+import getModal
 
 connect.myconnect(
     host="localhost",
@@ -6,4 +7,6 @@ connect.myconnect(
     password="",
     database="oyly",
 )
-print(connect.getAllData())
+data = getModal.getAllData()
+for row in data:
+    print(row)

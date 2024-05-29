@@ -11,11 +11,3 @@ def myconnect(host, user, password, database):
         database=database,
     )
     cursor = connection.cursor()
-
-
-def getAllData():
-    global cursor
-    query = "SELECT * FROM contact_us"
-    cursor.execute(query)
-    result = cursor.fetchall()
-    return result
