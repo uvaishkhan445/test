@@ -10,4 +10,4 @@ def myconnect(host, user, password, database):
         password=password,
         database=database,
     )
-    cursor = connection.cursor()
+    cursor = connection.cursor(dictionary=True)

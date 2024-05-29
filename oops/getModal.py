@@ -2,8 +2,8 @@ import connect
 
 
 def getAllData():
-    connect.cursor
+    conn = connect.cursor
     query = "SELECT * FROM contact_us"
-    connect.cursor.execute(query)
-    result = connect.cursor.fetchall()
+    conn.execute(query)
+    result = conn.fetchall()
     return result
