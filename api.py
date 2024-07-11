@@ -99,10 +99,7 @@ def delete_user(id):
     mysql.connection.commit()
     cur.close()
     return jsonify({"message": "User deleted successfully!"})
-@app.route("/getDemo",methods=['get'])
-def getDemo():
-    cur=mysql.connection.cursor()
-    cur.
+
 
 if __name__ == "__main__":
     app.run(debug=True)

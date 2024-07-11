@@ -1,6 +1,16 @@
 # importing required library
 import json
 import mysql.connector
+from datetime import date, datetime
+
+
+# Custom JSONEncoder subclass
+class CustomEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (date, datetime)):
+            return obj.isoformat()
+        return super().default(obj)
+
 
 # connecting to the database
 dataBase = mysql.connector.connect(
@@ -13,11 +23,11 @@ cursorObject = dataBase.cursor(dictionary=True)
 print("Displaying NAME and ROLL columns from the STUDENT table:")
 
 # selecting query
-query = "SELECT id,name,mobile_no,email_id,message,status FROM contact_us"
+query = "SELECT * FROM contact_us"
 cursorObject.execute(query)
 
 myresult = cursorObject.fetchall()
-json_string = json.dumps(myresult, indent=4)
+json_string = json.dumps(myresult, cls=CustomEncoder, indent=4)
 
 print(json_string)
 # for x in myresult:
