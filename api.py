@@ -51,22 +51,7 @@ def get_users():
     }  # Convert rows to key-value pairs
 
     cur.close()
-    # users_list = []
-    # for user in users:
-    #     user_dict = {
-    #         "id": user[0],
-    #         "admin_id": user[1],
-    #         "name": user[2],
-    #         "mobile_no": user[3],
-    #         "email_id": user[4],
-    #         "message": user[5],
-    #         "date": user[6],
-    #         "status": user[7],
-    #     }
-    #     users_list.append(user_dict)
-
     return jsonify(data)
-    # return jsonify(users)
 
 
 # Get a single user by id
