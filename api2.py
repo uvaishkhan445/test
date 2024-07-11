@@ -1,13 +1,4 @@
-from flask import (
-    Flask,
-    request,
-    jsonify,
-    render_template,
-    redirect,
-    url_for,
-    Response,
-    make_response,
-)
+from flask import Flask, request, jsonify, render_template, redirect, url_for, Response, make_response
 from flask_mysqldb import MySQL
 from flask_cors import CORS
 from flask_mail import Mail, Message
@@ -107,7 +98,7 @@ def get_user(id):
         return jsonify(user_dict)
     else:
         return jsonify({"message": "User not found!"}), 404
-
+    
 
 # Update a user by id
 @app.route("/users/<int:id>", methods=["PUT"])
