@@ -1,6 +1,24 @@
+<<<<<<< HEAD
 from flask import Flask, request, jsonify, render_template, url_for
+=======
+from flask import (
+    Flask,
+    request,
+    jsonify,
+    render_template,
+    redirect,
+    url_for,
+    Response,
+    make_response,
+)
+>>>>>>> ed539232d3a7892ef09a6e21a0e0811f255e9d09
 from flask_mysqldb import MySQL
 from flask_cors import CORS
+from flask_mail import Mail, Message
+import pandas as pd
+from fpdf import FPDF
+
+# from weasyprint import HTML
 
 app = Flask(__name__)
 CORS(app)
@@ -14,9 +32,24 @@ app.config["MYSQL_DB"] = "oyly"
 mysql = MySQL(app)
 
 
+# Configure Flask-Mail settings
+app.config["MAIL_SERVER"] = "smtp.gmail.com"  # SMTP server address
+app.config["MAIL_PORT"] = 587  # Port
+app.config["MAIL_USE_TLS"] = True  # TLS
+app.config["MAIL_USERNAME"] = "uvaishkhan20@gmail.com"  # Your email username
+app.config["MAIL_PASSWORD"] = "ehmwuqeutocbvlgy"  # Your email password
+
+mail = Mail(app)
+
+
 @app.route("/")
 def index():
-    return render_template("index.html")
+    data = {
+        "title": "Welcome to My Python Website",
+        "description": "This is a sample Contact Us Record.",
+        "items": ["Item 1", "Item 2", "Item 3"],
+    }
+    return render_template("index.html", **data)
 
 
 # Create a new user
@@ -110,6 +143,102 @@ def delete_user(id):
     mysql.connection.commit()
     cur.close()
     return jsonify({"id": id, "message": "User deleted successfully!"})
+
+
+# send mail notification
+
+
+@app.route("/send_email", methods=["GET"])
+def send_email():
+    # Create message object
+    msg = Message(
+        subject="Hello from Flask",
+        sender="uvaishkhan20@gmail.com",
+        recipients=["kuvaish103@gmail.com"],
+    )
+    msg.body = "This is a test email sent from Flask using Flask-Mail."
+
+    # Send the email
+    mail.send(msg)
+    return "Email sent successfully!"
+
+
+# download data in csv format
+@app.route("/download_csv", methods=["GET"])
+def download_csv():
+    # Create some sample data
+
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT * FROM contact_us order by id desc")
+    users = cur.fetchall()
+    cur.close()
+    data = [
+        {
+            "id": user[0],
+            "admin_id": user[1],
+            "name": user[2],
+            "mobile_no": user[3],
+            "email_id": user[4],
+            "message": user[5],
+            "date": user[6],
+            "status": user[7],
+        }
+        for user in users
+    ]
+    df = pd.DataFrame(data)
+
+    # Convert DataFrame to CSV
+    csv_data = df.to_csv(index=False)
+
+    # Create a response object
+    response = Response(csv_data, mimetype="text/csv")
+    response.headers.set("Content-Disposition", "attachment", filename="data.csv")
+
+    return response
+
+
+# download PDF file
+
+
+class PDF(FPDF):
+    def header(self):
+        self.set_font("Arial", "B", 12)
+        self.cell(0, 10, "Sample PDF Document", 0, 1, "C")
+
+    def footer(self):
+        self.set_y(-15)
+        self.set_font("Arial", "I", 8)
+        self.cell(0, 10, f"Page {self.page_no()}", 0, 0, "C")
+
+    def chapter_title(self, title):
+        self.set_font("Arial", "B", 12)
+        self.cell(0, 10, title, 0, 1, "L")
+        self.ln(10)
+
+    def chapter_body(self, body):
+        self.set_font("Arial", "", 12)
+        self.multi_cell(0, 10, body)
+        self.ln()
+
+
+@app.route("/download_pdf", methods=["GET"])
+def download_pdf():
+    pdf = PDF()
+    pdf.add_page()
+    pdf.chapter_title("Chapter 1: Introduction")
+    pdf.chapter_body(
+        "This is a simple chapter body to demonstrate how to use FPDF in Flask."
+    )
+    pdf.chapter_title("Chapter 2: More Content")
+    pdf.chapter_body(
+        "Here is some more content for the second chapter of our PDF document."
+    )
+
+    response = make_response(pdf.output(dest="S").encode("latin1"))
+    response.headers["Content-Type"] = "application/pdf"
+    # response.headers["Content-Disposition"] = "inline; filename=output.pdf"
+    response.headers["Content-Disposition"] = "attachment; filename=output.pdf"
+    return response
 
 
 if __name__ == "__main__":

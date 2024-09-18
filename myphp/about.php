@@ -9,8 +9,9 @@
 
 <body>
     <h1>About Page</h1>
+    <a href="index">Home</a>
     <?php
-    print_r($_GET);
+    // print_r($_GET);
     ?>
 </body>
 
