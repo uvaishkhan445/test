@@ -43,24 +43,15 @@ def add_user():
 def get_users():
     cur = mysql.connection.cursor()
     cur.execute("SELECT * FROM contact_us")
-    users = cur.fetchall()
-    cur.close()
-    users_list = []
-    for user in users:
-        user_dict = {
-            "id": user[0],
-            "admin_id": user[1],
-            "name": user[2],
-            "mobile_no": user[3],
-            "email_id": user[4],
-            "message": user[5],
-            "date": user[6],
-            "status": user[7],
-        }
-        users_list.append(user_dict)
+    # Fetch all rows from the executed query
+    columns = [desc[0] for desc in cur.description]  # Get column names
+    rows = cur.fetchall()
+    data = {
+        row[0]: dict(zip(columns[1:], row[1:])) for row in rows
+    }  # Convert rows to key-value pairs
 
-    return jsonify(users_list)
-    # return jsonify(users)
+    cur.close()
+    return jsonify(data)
 
 
 # Get a single user by id
