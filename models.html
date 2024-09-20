@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wikipedia-like Hover Popup with Arrow</title>
+    <style>
+      /* Basic Styling */
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+
+      .hover-link {
+        color: #0645ad;
+        cursor: pointer;
+        position: relative;
+        text-decoration: underline;
+      }
+
+      .hover-link:hover,
+      .hover-link:focus {
+        color: #0b0080;
+      }
+
+      /* Popup Styling */
+      .hover-popup {
+        display: none; /* Hidden by default */
+        position: absolute;
+        max-width: 300px;
+        padding: 15px;
+        background-color: #f9f9f9;
+        border: 1px solid #d2d2d2;
+        border-radius: 4px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 1000;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+        opacity: 0;
+        visibility: hidden;
+      }
+
+      .hover-popup.show {
+        display: block;
+        opacity: 1;
+        visibility: visible;
+      }
+
+      /* Arrow Styling */
+      .hover-popup .arrow {
+        width: 0;
+        height: 0;
+        position: absolute;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+      }
+
+      .hover-popup.below .arrow {
+        top: -8px; /* Position above the popup */
+        left: 20px; /* Adjust as needed to point to the link */
+        border-bottom: 8px solid #f9f9f9; /* Arrow pointing down */
+        box-shadow: -1px -1px 1px rgba(0, 0, 0, 0.1);
+      }
+
+      .hover-popup.above .arrow {
+        bottom: -8px; /* Position below the popup */
+        left: 20px; /* Adjust as needed to point to the link */
+        border-top: 8px solid #f9f9f9; /* Arrow pointing up */
+        box-shadow: -1px 1px 1px rgba(0, 0, 0, 0.1);
+      }
+
+      .popup-content h3 {
+        margin-top: 0;
+        font-size: 1.1em;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 5px;
+      }
+
+      .popup-content p {
+        margin: 10px 0 0 0;
+        font-size: 0.95em;
+        line-height: 1.4;
+      }
+    </style>
+  </head>
+  <body>
+    <p>
+      This is a sample paragraph with a
+      <span
+        class="hover-link"
+        data-title="OpenAI"
+        data-content="OpenAI is an AI research and deployment company. Our mission is to ensure that artificial general intelligence benefits all of humanity."
+        tabindex="0"
+        aria-haspopup="true"
+        aria-expanded="false"
+        aria-describedby="hover-popup"
+      >
+        hover link
+      </span>
+      similar to Wikipedia's link previews.
+    </p>
+
+    <!-- Popup Container -->
+    <div id="hover-popup" class="hover-popup" role="tooltip">
+      <div class="arrow"></div>
+      <!-- Arrow Element -->
+      <div class="popup-content">
+        <h3 id="popup-title"></h3>
+        <p id="popup-text"></p>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const hoverLinks = document.querySelectorAll(".hover-link");
+        const popup = document.getElementById("hover-popup");
+        const popupTitle = document.getElementById("popup-title");
+        const popupText = document.getElementById("popup-text");
+        const arrow = popup.querySelector(".arrow");
+
+        hoverLinks.forEach((link) => {
+          // Mouse Events
+          link.addEventListener("mouseenter", function () {
+            const title = this.getAttribute("data-title");
+            const content = this.getAttribute("data-content");
+
+            // Set popup content
+            popupTitle.textContent = title;
+            popupText.textContent = content;
+
+            // Show popup
+            popup.classList.add("show");
+
+            // Position the popup
+            positionPopup(this, popup);
+          });
+
+          link.addEventListener("mouseleave", function () {
+            setTimeout(() => {
+              if (!popup.matches(":hover")) {
+                popup.classList.remove("show");
+              }
+            }, 200);
+          });
+
+          // Keyboard Events
+          link.addEventListener("focus", function () {
+            const title = this.getAttribute("data-title");
+            const content = this.getAttribute("data-content");
+
+            popupTitle.textContent = title;
+            popupText.textContent = content;
+
+            popup.classList.add("show");
+            positionPopup(this, popup);
+
+            this.setAttribute("aria-expanded", "true");
+          });
+
+          link.addEventListener("blur", function () {
+            setTimeout(() => {
+              if (!popup.matches(":hover")) {
+                popup.classList.remove("show");
+                this.setAttribute("aria-expanded", "false");
+              }
+            }, 200);
+          });
+        });
+
+        // Hide popup when mouse leaves the popup
+        popup.addEventListener("mouseleave", function () {
+          popup.classList.remove("show");
+        });
+
+        // Hide popup when focus moves away
+        popup.addEventListener("blur", function () {
+          popup.classList.remove("show");
+        });
+
+        // Function to position the popup and arrow
+        function positionPopup(element, popup) {
+          const rect = element.getBoundingClientRect();
+          const popupRect = popup.getBoundingClientRect();
+
+          let top = rect.bottom + window.scrollY + 10; // 10px below the element
+          let left = rect.left + window.scrollX;
+
+          // Reset arrow classes
+          popup.classList.remove("above");
+          popup.classList.remove("below");
+
+          // Determine if there's enough space below; if not, show above
+          if (top + popupRect.height > window.innerHeight + window.scrollY) {
+            top = rect.top + window.scrollY - popupRect.height - 10; // 10px above the element
+            popup.classList.add("above");
+          } else {
+            popup.classList.add("below");
+          }
+
+          // Adjust if popup goes beyond the right edge
+          if (left + popupRect.width > window.innerWidth) {
+            left = window.innerWidth - popupRect.width - 20; // 20px padding from edge
+          }
+
+          // Adjust if popup goes beyond the left edge
+          if (left < 0) {
+            left = 10; // 10px padding from left
+          }
+
+          popup.style.top = `${top}px`;
+          popup.style.left = `${left}px`;
+
+          // Position the arrow horizontally relative to the link
+          const arrowLeft =
+            rect.left + window.scrollX + rect.width / 2 - left - 8; // 8px is half the arrow's width
+          // Ensure the arrow doesn't overflow the popup
+          const maxArrowLeft = popupRect.width - 16; // 16px to prevent overflow
+          const adjustedArrowLeft = Math.max(
+            10,
+            Math.min(arrowLeft, maxArrowLeft)
+          ); // 10px minimum padding
+
+          arrow.style.left = `${adjustedArrowLeft}px`;
+        }
+      });
+    </script>
+  </body>
+</html>
