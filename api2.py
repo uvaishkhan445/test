@@ -1,17 +1,5 @@
-<<<<<<< HEAD
-from flask import Flask, request, jsonify, render_template, url_for
-=======
-from flask import (
-    Flask,
-    request,
-    jsonify,
-    render_template,
-    redirect,
-    url_for,
-    Response,
-    make_response,
-)
->>>>>>> ed539232d3a7892ef09a6e21a0e0811f255e9d09
+from Flask import Flask, request, jsonify, render_template, redirect, url_for, Response, make_response
+
 from flask_mysqldb import MySQL
 from flask_cors import CORS
 from flask_mail import Mail, Message
