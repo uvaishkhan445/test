@@ -38,8 +38,8 @@ if (isset($_POST['submit'])) {
                             ?>
                                 <form method="post" class="row">
                                     <div class="form-group col-10">
-                                        <input type="text" name="name" required class="form-control">
-
+                                        <input type="text" name="name" required class="form-control"
+                                            placeholder="Enter your name">
                                     </div>
                                     <div class="form-group col-2">
                                         <input type="submit" name="submit" value="Submit" class="btn btn-primary">
@@ -51,8 +51,7 @@ if (isset($_POST['submit'])) {
                             <?php } else { ?>
                                 <div class="row">
                                     <div class="form-group col-10">
-                                        <input type="text" id="msg" class="form-control">
-
+                                        <input type="text" id="msg" class="form-control" placeholder="Type Message">
                                     </div>
                                     <div class="form-group col-2">
 
@@ -78,6 +77,24 @@ if (isset($_POST['submit'])) {
 
 <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
 <script>
+    let now = new Date();
+    let mumbaiTime = now.toLocaleString('en-IN', {
+        timeZone: 'Asia/Kolkata'
+    });
+
+    console.log(`Mumbai Time: ${mumbaiTime}`);
+
+
+    let hours = now.getHours();
+    let minutes = now.getMinutes();
+    let seconds = now.getSeconds();
+    // Determine AM or PM
+    let period = hours >= 12 ? 'PM' : 'AM';
+
+    // Convert hours from 24-hour format to 12-hour format
+    hours = hours % 12 || 12; // Adjust hours so that 0 becomes 12
+
+    console.log(`Current Time: ${hours}:${minutes}:${seconds} ${period}`);
     var conn = new WebSocket('ws://localhost:8080');
     conn.onopen = function(e) {
         console.log("Connection established!");
@@ -90,7 +107,7 @@ if (isset($_POST['submit'])) {
             getData
             .name +
             "</b>: " + getData
-            .msg + "<br/></div></div>";
+            .msg + "<br/><span style='font-size:13px;text-align: right'>" + getData.time + "</span> </div></div>";
         jQuery('#msg_box').append(html);
     };
 
@@ -99,14 +116,18 @@ if (isset($_POST['submit'])) {
         var name = "<?php echo $_SESSION['name'] ?>";
         var content = {
             msg: msg,
-            name: name
+            name: name,
+            time: `${hours}:${minutes} ${period}`
+
         };
         conn.send(JSON.stringify(content));
 
         var html =
             "<div class='alert alert-primary' role='alert'><div class='text-left' style='text-align: right;'><b>" +
             name +
-            "</b>: " + msg +
+            "</b>: " + msg + "<br /><span style='font-size:13px;text-align: right'>" + hours + ":" + minutes + " " +
+            period +
+            "</span>" +
             "<br/></div></div>";
         jQuery('#msg_box').append(html);
         jQuery('#msg').val('');
