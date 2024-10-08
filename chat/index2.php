@@ -141,17 +141,6 @@
 
 <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
 <script>
-    let now = new Date();
-    let hours = now.getHours();
-    let minutes = now.getMinutes();
-    let seconds = now.getSeconds();
-    // Determine AM or PM
-    let period = hours >= 12 ? 'PM' : 'AM';
-
-    // Convert hours from 24-hour format to 12-hour format
-    hours = hours % 12 || 12; // Adjust hours so that 0 becomes 12
-
-    console.log(`Current Time: ${hours}:${minutes}:${seconds} ${period}`);
     var conn = new WebSocket('ws://localhost:8080');
     conn.onopen = function(e) {
         console.log("Connection established!");
@@ -169,6 +158,17 @@
     };
 
     jQuery('#btn').click(function() {
+        let now = new Date();
+        let hours = now.getHours();
+        let minutes = now.getMinutes();
+        let seconds = now.getSeconds();
+        // Determine AM or PM
+        let period = hours >= 12 ? 'PM' : 'AM';
+
+        // Convert hours from 24-hour format to 12-hour format
+        hours = hours % 12 || 12; // Adjust hours so that 0 becomes 12
+
+        console.log(`Current Time: ${hours}:${minutes}:${seconds} ${period}`);
         var msg = jQuery('#msg').val();
         var name = "<?php echo $_SESSION['name'] ?>";
         var content = {
